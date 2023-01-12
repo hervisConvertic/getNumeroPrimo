@@ -1,31 +1,46 @@
 package com.convertic.spring.demoweb;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/app")
 public class DemoController {
-    @GetMapping(value = "/saludar")
-    public String helloWorld(@RequestParam String name) {
+
+    @PostMapping(value = "/notaFinal")
+    public String getNotas(@RequestBody Notas notas){
+        double notaDef;
+         notaDef=notas.getNotaDefinitiva();
+
+        return "notafinal "+notaDef;
+    }
+
+
+    @GetMapping(value = "/saludar/{name}")
+    public String helloWorld(@PathVariable String name) {
 
         return "hola soy estudiante convertic  ".concat(name);
     }
 
+
     @GetMapping(value = "/operacion")
-    public String getNumeroPrimo(@RequestParam String numero) {
-        int  cont = 0;
-        for (int i = 1; i <= Integer.parseInt(numero); i++) {
-            if (Integer.parseInt(numero) % i == 0) {
-                cont = cont + 1;
-            }
+    public ResponseEntity<RespuestaNumeroPrimo> getNumeroPrimo(@RequestParam String numero) {
+        ResponseEntity responseEntity = null;
+        RespuestaNumeroPrimo respuestaNumeroPrimo = null;
+
+        try {
+            NumeroPrimo numeroPrimo = new NumeroPrimo(numero);
+            respuestaNumeroPrimo = new RespuestaNumeroPrimo(numeroPrimo.getNumero());
+            responseEntity = ResponseEntity.status(HttpStatusCode.valueOf(200)).body(respuestaNumeroPrimo);
+
+        } catch (ExcepcionCero e) {
+            respuestaNumeroPrimo = new RespuestaNumeroPrimo(e.getMessage());
+            responseEntity = ResponseEntity.status(HttpStatusCode.valueOf(500)).body(respuestaNumeroPrimo);
+        } catch (ExcepcionDatoNumerico e) {
+            respuestaNumeroPrimo = new RespuestaNumeroPrimo(e.getMessage());
+            responseEntity = ResponseEntity.status(HttpStatusCode.valueOf(500)).body(respuestaNumeroPrimo);
         }
-        if (cont != 2) {
-            return "numero no es primo";
-        }else{
-            return "numero es primo";
-        }
+        return responseEntity;
     }
 }
