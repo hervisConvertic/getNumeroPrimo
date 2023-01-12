@@ -12,7 +12,7 @@ public class DemoController {
     public String getNotas(@RequestBody Notas notas){
         double notaDef;
          notaDef=notas.getNotaDefinitiva();
-
+        System.out.println("se retorna prueba final");
         return "notafinal "+notaDef;
     }
 
